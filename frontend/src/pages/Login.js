@@ -6,24 +6,30 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+  e.preventDefault();
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+  try {
+    const response = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // Check if user exists
-    const validUser = users.find(
-      (user) => user.email === email && user.password === password
-    );
+    const data = await response.json();
 
-    if (validUser) {
-      localStorage.setItem("currentUser", JSON.stringify(validUser));
+    if (response.ok && data.success) {
+      localStorage.setItem("currentUser", JSON.stringify(data.user)); // save logged in user
       alert("Login successful!");
       navigate("/dashboard");
     } else {
-      alert("Invalid email or password!");
+      alert(data.message || "Invalid email or password!");
     }
-  };
+  } catch (error) {
+    console.error("Login Error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

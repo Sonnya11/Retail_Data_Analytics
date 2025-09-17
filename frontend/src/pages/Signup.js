@@ -6,27 +6,29 @@ function Signup() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSignup = (e) => {
-    e.preventDefault();
+  const handleSignup = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await fetch("http://localhost:5000/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),  // backend ko bhejna
+    });
 
-    // Get existing users from localStorage
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const data = await response.json();
 
-    // Check if email already exists
-    const userExists = users.find((user) => user.email === email);
-    if (userExists) {
-      alert("User already exists! Please login.");
+    if (response.ok) {
+      alert("Signup successful! Please login.");
       navigate("/");
-      return;
+    } else {
+      alert(data.message);
     }
+  } catch (error) {
+    console.error("Signup Error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+};
 
-    // Save new user
-    users.push({ email, password });
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Signup successful! Please login.");
-    navigate("/");
-  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
